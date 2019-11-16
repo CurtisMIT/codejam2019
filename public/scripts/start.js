@@ -5,7 +5,6 @@ const config = {
     physics: {
         default: 'arcade',
         arcade: {
-            gravity: { y: 300 },
             debug: false
         }
     },
@@ -16,111 +15,82 @@ const config = {
     }
 }
 const game = new Phaser.Game(config)
-let player
-let platforms
-let stars
-let bombs
-let score = 0
-let scoreText
-let gameOver = false
+let trainer
 let cursors
 function preload() {
-    console.log('preload')
     this.load.image('sky', 'assets/sky.png')
-    this.load.image('star', 'assets/star.png')
-    this.load.image('ground', 'assets/platform.png')
-    this.load.image('bomb', 'assets/bomb.png')
-    this.load.spritesheet('dude', 'assets/dude.png', { frameWidth: 32, frameHeight: 48 })
+    this.load.spritesheet('trainer', 'assets/trainer.png', { frameWidth: 51, frameHeight: 54 })
 }
 
 function create() {
-    console.log('create')
     this.add.image(400, 300, 'sky')
-    platforms = this.physics.add.staticGroup()
 
-    platforms.create(400, 568, 'ground').setScale(2).refreshBody()
-
-    player = this.physics.add.sprite(100, 450, 'dude')
-    player.setBounce(0.2)
-    player.setCollideWorldBounds(true)
+    trainer = this.physics.add.sprite(100, 450, 'trainer')
+    trainer.setCollideWorldBounds(true)
 
     this.anims.create({
-        key: 'left',
-        frames: this.anims.generateFrameNumbers('dude', { start: 0, end: 3 }),
+        key: 'still',
+        frames: [ { key: 'trainer', frame: 0 } ],
+        frameRate: 20
+    })
+
+    this.anims.create({
+        key: 'west',
+        frames: this.anims.generateFrameNumbers('trainer', { start: 4, end: 7}),
         frameRate: 10,
         repeat: -1
     })
 
     this.anims.create({
-        key: 'turn',
-        frames: [ { key: 'dude', frame: 4 } ],
-        frameRate: 20
+        key: 'east',
+        frames: this.anims.generateFrameNumbers('trainer', { start: 8, end: 11}),
+        frameRate: 10,
+        repeat: -1
     })
 
     this.anims.create({
-        key: 'right',
-        frames: this.anims.generateFrameNumbers('dude', { start: 5, end: 8 }),
+        key: 'north',
+        frames: this.anims.generateFrameNumbers('trainer', { start: 12, end: 15 } ),
+        frameRate: 10,
+        repeat: -1
+    })
+
+    this.anims.create({
+        key: 'south',
+        frames: this.anims.generateFrameNumbers('trainer', { start: 1, end: 3 } ),
         frameRate: 10,
         repeat: -1
     })
 
     cursors = this.input.keyboard.createCursorKeys()
 
-    stars = this.physics.add.group({
-        key: 'star',
-        repeat: 11,
-        setXY: { x: 12, y: 0, stepX: 70 }
-    })
-
-    stars.children.iterate(function (child) {
-        child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8))
-    })
-
-    bombs = this.physics.add.group()
-
-
-    scoreText = this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000'})
-
-    this.physics.add.collider(player, platforms)
-    this.physics.add.collider(stars, platforms)
-    this.physics.add.collider(bombs, platforms)
-
-    this.physics.add.overlap(player, stars, collectStar, null, this)
-    this.physics.add.overlap(player, bombs, hitBomb, null, this)
-
 }
 
 function update() {
     if (cursors.left.isDown) {
-        player.setVelocityX(-160)
-        console.log('left')
-        player.anims.play('left', true)
-    } else if (cursors.right.isDown)
-    {
-        player.setVelocityX(160);
-        console.log('right')
-        player.anims.play('right', true);
-    }
-    else
-    {
-        player.setVelocityX(0);
+        trainer.setVelocityX(-160)
+        trainer.setVelocityY(0)
 
-        player.anims.play('turn');
-    }
+        trainer.anims.play('west', true)
+    } else if (cursors.right.isDown) {
+        trainer.setVelocityX(160)
+        trainer.setVelocityY(0)
+        
+        trainer.anims.play('east', true)
+    } else if (cursors.up.isDown) {
+        trainer.setVelocityX(0)
+        trainer.setVelocityY(-160)
 
-    if (cursors.up.isDown && player.body.touching.down)
-    {
-        player.setVelocityY(-330);
+        trainer.anims.play('north', true)
+    } else if (cursors.down.isDown) {
+        trainer.setVelocityX(0)
+        trainer.setVelocityY(160)
+
+        trainer.anims.play('south', true)
+    } else {
+        trainer.setVelocityX(0)
+        trainer.setVelocityY(0)
+
+        trainer.anims.play('still')
     }
 }
-
-function collectStar (player, star) {
-    star.disableBody(true, true)
-
-    score += 10
-    scoreText.setText('Score: ' + score)
-
-    if (stars.countActive(true) == 0) {}
-}
-
-function hitBomb ()
