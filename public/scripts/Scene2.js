@@ -12,32 +12,69 @@ class Scene2 extends Phaser.Scene {
         this.belt = this.physics.add.sprite(400, 570, 'belt')
         this.belt.setScale(2.5)
 
+        //creating stations
+        this.mainWork = this.physics.add.sprite(303, 125, 'main').setScale(0.75)
+        this.mainWork.setImmovable(true)
+        this.iceTray = this.physics.add.sprite(700, 125, 'ice')
+        this.iceTray.setImmovable(true)
+        this.cups = this.physics.add.sprite(58, 410, 'cups')
+        this.cups.setImmovable(true)
+
         // creating person and trainer
         this.person = this.physics.add.sprite(300, 450, 'barista')
-        this.trainer = this.physics.add.sprite(100, 450, 'trainer')
+        // this.trainer = this.physics.add.sprite(100, 450, 'trainer')
+        // this.trainer.setImmovable(true)
 
         // creating steps for user to click
-        this.steps = this.physics.add.group()
-        let maxSteps = 222
-        for (let i = 12; i <= maxSteps; i += 70) {
-            let step = this.physics.add.sprite(i, 520, 'star')
-            step.setInteractive()
-            this.steps.add(step)
-        }
+        // this.steps = this.physics.add.group()
+        // let maxSteps = 12 + (100 * 7)
+        // for (let i = 12; i <= maxSteps; i += 100) {
+        //     let step = this.physics.add.sprite(i, 520, 'star')
+        //     step.setInteractive()
+        //     this.steps.add(step)
+        // }
 
-        // this.step1 = this.add.sprite(12, 520, 'star')
-        // this.step2 = this.add.sprite(82, 520, 'star')
-        // this.step3 = this.add.sprite(152, 520, 'star')
-        // this.step4 = this.add.sprite(222, 520, 'star')
-        // this.step1.setInteractive()
-        // this.step2.setInteractive()
-        // this.step3.setInteractive()
-        // this.step4.setInteractive()
+        this.steps = this.physics.add.staticGroup()
+        this.stepIce = this.add.sprite(12, 520, 'iceCube')
+        this.steps.add(this.stepIce)
+        this.stepIce.on('pointerdown', this.goToIce)
+        this.stepLCup = this.add.sprite(112, 520, 'large')
+        this.steps.add(this.stepLCup)
+        this.stepLCup.on('pointerdown', this.goToCups)
+        this.stepSCup = this.add.sprite(212, 520, 'small')
+        this.steps.add(this.stepSCup)
+        this.stepSCup.on('pointerdown', this.goToCups)
+        this.stepLSugar = this.add.sprite(312, 520, 'Hsugar')
+        this.steps.add(this.stepLSugar)
+        this.stepLSugar.on('pointerdown', this.goToMain)
+        this.stepHSugar = this.add.sprite(412, 520, 'Lsugar')
+        this.steps.add(this.stepHSugar)
+        this.stepHSugar.on('pointerdown', this.goToMain)
+        this.stepTop1 = this.add.sprite(512, 520, 'boba')
+        this.steps.add(this.stepTop1)
+        this.stepTop1.on('pointerdown', this.goToMain)
+        this.stepTop2 = this.add.sprite(612, 520, 'jelly')
+        this.steps.add(this.stepTop2)
+        this.stepTop2.on('pointerdown', this.goToMain)
+        this.stepTea = this.add.sprite(712, 520, 'tea')
+        this.steps.add(this.stepTea)
+        this.stepTea.on('pointerdown', this.goToMain)
+        this.stepIce.setInteractive()
+        this.stepLCup.setInteractive()
+        this.stepSCup.setInteractive()
+        this.stepLSugar.setInteractive()
+        this.stepHSugar.setInteractive()
+        this.stepTop1.setInteractive()
+        this.stepTop2.setInteractive()
+        this.stepTea.setInteractive()
 
         // listen for user clicking gameobjects
-        this.input.on('gameobjectdown', this.execStep, this)
+        // this.input.on('gameobjectdown', this.execStep, this)
 
-
+        this.physics.add.collider(this.person, this.trainer)
+        this.physics.add.collider(this.person, this.iceTray, this.halt)
+        this.physics.add.collider(this.person, this.mainWork)
+        this.physics.add.collider(this.person, this.cups, this.halt)
 
         // animations
         this.anims.create({
@@ -57,16 +94,18 @@ class Scene2 extends Phaser.Scene {
     }
 
     update = () => {
-        // this.moveStep(this.step1, 1)
-        // this.moveStep(this.step2, 1)
-        // this.moveStep(this.step3, 1)
-        // this.moveStep(this.step4, 1)
 
+        // for (let i = 0; i < this.steps.getChildren().length; i++) {
+        //     let steps = this.steps.getChildren()
+        //     this.moveStep(steps[i], 1)
+        // }
+        
         for (let i = 0; i < this.steps.getChildren().length; i++) {
-            let steps = this.steps.getChildren()
-            this.moveStep(steps[i], 1)
+            this.moveStep(this.steps.getChildren()[i], 1)
         }
+
         this.belt.anims.play('belt', true)
+
     }
 
     moveStep = (step, speed) => {
@@ -81,8 +120,28 @@ class Scene2 extends Phaser.Scene {
     }
 
     execStep = (pointer, gameObject) => {
+        console.log(gameObject)
         gameObject.setTexture('explosion')
         gameObject.play('explode')
         this.physics.moveToObject(this.person, this.trainer)
+    }
+
+    halt = () => {
+        this.person.setVelocity(0, 0)
+    }
+
+    goToIce = () => {
+        console.log('ice')
+        this.physics.moveToObject(this.person, this.iceTray)
+    }
+
+    goToCups = () => {
+        console.log('cups')
+        this.physics.moveToObject(this.person, this.cups)
+    }
+
+    goToMain = () => {
+        console.log('main')
+        this.physics.moveToObject(this.person, this.mainWork)
     }
 }
