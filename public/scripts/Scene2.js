@@ -39,27 +39,35 @@ class Scene2 extends Phaser.Scene {
         this.stepIce = this.add.sprite(12, 520, 'iceCube')
         this.steps.add(this.stepIce)
         this.stepIce.on('pointerdown', this.goToIce)
+
         this.stepLCup = this.add.sprite(112, 520, 'large')
         this.steps.add(this.stepLCup)
         this.stepLCup.on('pointerdown', this.goToCups)
+
         this.stepSCup = this.add.sprite(212, 520, 'small')
         this.steps.add(this.stepSCup)
         this.stepSCup.on('pointerdown', this.goToCups)
+
         this.stepLSugar = this.add.sprite(312, 520, 'Hsugar')
         this.steps.add(this.stepLSugar)
-        this.stepLSugar.on('pointerdown', this.goToMain)
+        this.stepLSugar.on('pointerdown', this.goToSugar)
+
         this.stepHSugar = this.add.sprite(412, 520, 'Lsugar')
         this.steps.add(this.stepHSugar)
-        this.stepHSugar.on('pointerdown', this.goToMain)
+        this.stepHSugar.on('pointerdown', this.goToSugar)
+
         this.stepTop1 = this.add.sprite(512, 520, 'boba')
         this.steps.add(this.stepTop1)
-        this.stepTop1.on('pointerdown', this.goToMain)
+        this.stepTop1.on('pointerdown', this.goToTop)
+
         this.stepTop2 = this.add.sprite(612, 520, 'jelly')
         this.steps.add(this.stepTop2)
-        this.stepTop2.on('pointerdown', this.goToMain)
+        this.stepTop2.on('pointerdown', this.goToTop)
+
         this.stepTea = this.add.sprite(712, 520, 'tea')
         this.steps.add(this.stepTea)
-        this.stepTea.on('pointerdown', this.goToMain)
+        this.stepTea.on('pointerdown', this.goToTea)
+
         this.stepIce.setInteractive()
         this.stepLCup.setInteractive()
         this.stepSCup.setInteractive()
@@ -100,6 +108,13 @@ class Scene2 extends Phaser.Scene {
         })
 
         this.anims.create({
+            key: 'west',
+            frames: this.anims.generateFrameNumbers('barista', { start: 4, end: 7}),
+            frameRate: 10,
+            repeat: -1
+        })
+
+        this.anims.create({
             key: 'east',
             frames: this.anims.generateFrameNumbers('barista', { start: 8, end: 11 }),
             frameRate: 10,
@@ -109,6 +124,13 @@ class Scene2 extends Phaser.Scene {
         this.anims.create({
             key: 'north',
             frames: this.anims.generateFrameNumbers('barista', { start: 12, end: 15 } ),
+            frameRate: 10,
+            repeat: -1
+        })
+
+        this.anims.create({
+            key: 'south',
+            frames: this.anims.generateFrameNumbers('barista', { start: 1, end: 3 } ),
             frameRate: 10,
             repeat: -1
         })
@@ -153,7 +175,30 @@ class Scene2 extends Phaser.Scene {
 
     goToIce = () => {
         console.log('ice')
+        console.log(this.location)
         if (this.location === 'center') {
+            this.person.anims.play('east', true)
+            this.tweens.add({
+                targets: [this.person],
+                x: 700,
+                duration: 2000,
+                callbackScope: this,
+                onComplete: function() {
+                    this.person.anims.play('north', true)
+                    this.tweens.add({
+                        targets: [this.person],
+                        y: 200,
+                        duration: 2000,
+                        callbackScope: this,
+                        onComplete: function() {
+                            this.location = 'iceTray'
+                            this.person.anims.play('still')
+                            console.log('going up')
+                        }
+                    })
+                }
+            })
+        } else if (this.location === 'cups') {
             this.person.anims.play('east', true)
             this.tweens.add({
                 targets: [this.person],
@@ -164,14 +209,51 @@ class Scene2 extends Phaser.Scene {
                     this.person.anims.play('north', true)
                     this.tweens.add({
                         targets: [this.person],
-                        y: 150,
+                        y: 200,
                         duration: 3000,
                         callbackScope: this,
                         onComplete: function() {
+                            this.location = 'iceTray'
                             this.person.anims.play('still')
                             console.log('going up')
                         }
                     })
+                }
+            })
+        } else if (this.location === 'top') {
+            this.person.anims.play('east', true)
+            this.tweens.add({
+                targets: [this.person],
+                x: 700,
+                duration: 2000,
+                callbackScope: this,
+                onComplete: function() {
+                    this.location = 'iceTray'
+                    this.person.anims.play('still')
+                }
+            })
+        } else if (this.location === 'sugar') {
+            this.person.anims.play('east', true)
+            this.tweens.add({
+                targets: [this.person],
+                x: 700,
+                duration: 3000,
+                callbackScope: this,
+                onComplete: function() {
+                    this.location = 'iceTray'
+                    this.person.anims.play('still')
+                }
+            })
+        } else if (this.location === 'tea') {
+            this.person.anims.play('east', true)
+            this.tweens.add({
+                targets: [this.person],
+                x: 700,
+                duration: 3000,
+                callbackScope: this,
+                onComplete: function() {
+                    this.location = 'iceTray'
+                    this.person.anims.play('still')
                 }
             })
         }
@@ -180,11 +262,351 @@ class Scene2 extends Phaser.Scene {
 
     goToCups = () => {
         console.log('cups')
-        this.physics.moveToObject(this.person, this.cups)
+        if (this.location === 'center') {
+            this.person.anims.play('west', true)
+            this.tweens.add({
+                targets: [this.person],
+                x: 150,
+                duration: 1000,
+                callbackScope: this,
+                onComplete: function() {
+                    this.location = 'cups'
+                    this.person.anims.play('still')
+                }
+            })
+        } else if (this.location === 'iceTray') {
+            this.person.anims.play('south', true)
+            this.tweens.add({
+                targets: [this.person],
+                y: 410,
+                duration: 3000,
+                callbackScope: this,
+                onComplete: function() {
+                    this.person.anims.play('west', true)
+                    this.tweens.add({
+                        targets: [this.person],
+                        x: 150,
+                        duration: 3000,
+                        callbackScope: this,
+                        onComplete: function() {
+                            this.location = 'cups'
+                            this.person.anims.play('still')
+                        }
+                    })
+                }
+            })
+        } else if (this.location === 'sugar') {
+            this.person.anims.play('east', true)
+            this.tweens.add({
+                targets: [this.person],
+                x: 150,
+                duration: 1000,
+                callbackScope: this,
+                onComplete: function() {
+                    this.person.anims.play('south', true)
+                    this.tweens.add({
+                        targets: [this.person],
+                        y: 410,
+                        duration: 2000,
+                        callbackScope: this,
+                        onComplete: function() {
+                            this.location = 'cups'
+                            this.person.anims.play('still')
+                        }
+                    })
+                }
+            })
+        } else if (this.location === 'top') {
+            this.person.anims.play('south', true)
+            this.tweens.add({
+                targets: [this.person],
+                y: 410,
+                duration: 3000,
+                callbackScope: this,
+                onComplete: function() {
+                    this.person.anims.play('west', true)
+                    this.tweens.add({
+                        targets: [this.person],
+                        x: 150,
+                        duration: 3000,
+                        callbackScope: this,
+                        onComplete: function() {
+                            this.location = 'cups'
+                            this.person.anims.play('still')
+                        }
+                    })
+                }
+            })
+        } else if (this.location === 'tea') {
+            this.person.anims.play('south', true)
+            this.tweens.add({
+                targets: [this.person],
+                y: 410,
+                duration: 3000,
+                callbackScope: this,
+                onComplete: function() {
+                    this.person.anims.play('west', true)
+                    this.tweens.add({
+                        targets: [this.person],
+                        x: 150,
+                        duration: 3000,
+                        callbackScope: this,
+                        onComplete: function() {
+                            this.location = 'cups'
+                            this.person.anims.play('still')
+                        }
+                    })
+                }
+            })
+        }
+        // this.physics.moveToObject(this.person, this.cups)
     }
 
-    goToMain = () => {
-        console.log('main')
-        this.physics.moveToObject(this.person, this.mainWork)
+    goToSugar = () => {
+        if (this.location === 'center') {
+            this.person.anims.play('north', true)
+            this.tweens.add({
+                targets: [this.person],
+                y: 200,
+                duration: 2000,
+                callbackScope: this,
+                onComplete: function() {
+                    this.person.anims.play('west', true)
+                    this.tweens.add({
+                        targets: [this.person],
+                        x: 80,
+                        duration: 2000,
+                        callbackScope: this,
+                        onComplete: function() {
+                            this.location = 'sugar'
+                            this.person.anims.play('still')
+                        }
+                    })
+                }
+            })
+        } else if (this.location === 'iceTray') {
+            this.person.anims.play('west', true)
+            this.tweens.add({
+                targets: [this.person],
+                x: 80,
+                duration: 2000,
+                callbackScope: this,
+                onComplete: function() {
+                    this.location = 'sugar'
+                    this.person.anims.play('still')
+                }
+            })
+        } else if (this.location === 'cups') {
+            this.person.anims.play('north', true)
+            this.tweens.add({
+                targets: [this.person],
+                y: 200,
+                duration: 2000,
+                callbackScope: this,
+                onComplete: function() {
+                    this.person.anims.play('west', true)
+                    this.tweens.add({
+                        targets: [this.person],
+                        x: 80,
+                        duration: 1000,
+                        callbackScope: this,
+                        onComplete: function() {
+                            this.location = 'sugar'
+                            this.person.anims.play('still')
+                        }
+                    })
+                }
+            })
+        } else if (this.location === 'top') {
+            this.person.anims.play('west', true)
+            this.tweens.add({
+                targets: [this.person],
+                x: 80,
+                duration: 2000,
+                callbackScope: this,
+                onComplete: function() {
+                    this.location = 'sugar'
+                    this.person.anims.play('still')
+                }
+            })
+        } else if (this.location === 'tea') {
+            this.person.anims.play('west', true)
+            this.tweens.add({
+                targets: [this.person],
+                x: 80,
+                duration: 2000,
+                callbackScope: this,
+                onComplete: function() {
+                    this.location = 'sugar'
+                    this.person.anims.play('still')
+                }
+            })
+        }
+    }
+
+    goToTop = () => {
+        if (this.location === 'center') {
+            this.person.anims.play('north', true)
+            this.tweens.add({
+                targets: [this.person],
+                y: 200,
+                duration: 3000,
+                callbackScope: this,
+                onComplete: function() {
+                    this.person.anims.play('west', true)
+                    this.tweens.add({
+                        targets: [this.person],
+                        x: 207,
+                        duration: 1000,
+                        callbackScope: this,
+                        onComplete: function() {
+                            this.location = 'top'
+                            this.person.anims.play('still')
+                        }
+                    })
+                }
+            })
+        } else if (this.location === 'iceTray') {
+            this.person.anims.play('west', true)
+            this.tweens.add({
+                targets: [this.person],
+                x: 207,
+                duration: 2000,
+                callbackScope: this,
+                onComplete: function() {
+                    this.location = 'top'
+                    this.person.anims.play('still')
+                }
+            })
+        } else if (this.location === 'cups') {
+            this.person.anims.play('north', true)
+            this.tweens.add({
+                targets: [this.person],
+                y: 200,
+                duration: 3000,
+                callbackScope: this,
+                onComplete: function() {
+                    this.person.anims.play('east', true)
+                    this.tweens.add({
+                        targets: [this.person],
+                        x: 207,
+                        duration: 1000,
+                        callbackScope: this,
+                        onComplete: function() {
+                            this.location = 'top'
+                            this.person.anims.play('still')
+                        }
+                    })
+                }
+            })
+        } else if (this.location === 'sugar') {
+            this.person.anims.play('east', true)
+            this.tweens.add({
+                targets: [this.person],
+                x: 207,
+                duration: 2000,
+                callbackScope: this,
+                onComplete: function() {
+                    this.location = 'top'
+                    this.person.anims.play('still')
+                }
+            })
+        } else if (this.location === 'tea') {
+            this.person.anims.play('west', true)
+            this.tweens.add({
+                targets: [this.person],
+                x: 207,
+                duration: 2000,
+                callbackScope: this,
+                onComplete: function() {
+                    this.location = 'top'
+                    this.person.anims.play('still')
+                }
+            })
+        }
+    }
+
+    goToTea = () => {
+        console.log('tea')
+        if (this.location === 'center') {
+            this.person.anims.play('north', true)
+            this.tweens.add({
+                targets: [this.person],
+                y: 200,
+                duration: 2000,
+                callbackScope: this,
+                onComplete: function() {
+                    this.person.anims.play('east', true)
+                    this.tweens.add({
+                        targets: [this.person],
+                        x: 400,
+                        duration: 1000,
+                        callbackScope: this,
+                        onComplete: function() {
+                            this.location = 'tea'
+                            this.person.anims.play('still')
+                        }
+                    })
+                }
+            })
+        } else if (this.location === 'iceTray') {
+            this.person.anims.play('west', true)
+            this.tweens.add({
+                targets: [this.person],
+                x: 400,
+                duration: 2000,
+                callbackScope: this,
+                onComplete: function() {
+                    this.location = 'tea'
+                    this.person.anims.play('still')
+                }
+            })
+        } else if (this.location === 'cups') {
+            this.person.anims.play('north', true)
+            this.tweens.add({
+                targets: [this.person],
+                y: 200,
+                duration: 2000,
+                callbackScope: this,
+                onComplete: function() {
+                    this.person.anims.play('east', true)
+                    this.tweens.add({
+                        targets: [this.person],
+                        x: 400,
+                        duration: 1000,
+                        callbackScope: this,
+                        onComplete: function() {
+                            this.location = 'tea'
+                            this.person.anims.play('still')
+                        }
+                    })
+                }
+            })
+        } else if (this.location === 'sugar') {
+            this.person.anims.play('east', true)
+            this.tweens.add({
+                targets: [this.person],
+                x: 400,
+                duration: 2000,
+                callbackScope: this,
+                onComplete: function() {
+                    this.location = 'tea'
+                    this.person.anims.play('still')
+                }
+            })
+        } else if (this.location === 'top') {
+            this.person.anims.play('east', true)
+            this.tweens.add({
+                targets: [this.person],
+                x: 400,
+                duration: 2000,
+                callbackScope: this,
+                onComplete: function() {
+                    this.location = 'tea'
+                    this.person.anims.play('still')
+                }
+            })
+        }
+        // this.physics.moveToObject(this.person, this.mainWork)
     }
 }
