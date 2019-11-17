@@ -25,6 +25,8 @@ function preload() {
     this.load.spritesheet('dude', 'assets/dude.png', { frameWidth: 32, frameHeight: 48 })
     this.load.image('star', 'assets/star.png')
     this.load.spritesheet('belt', 'assets/belt.png', { frameWidth: 383.75, frameHeight: 37})
+    this.load.image('background', 'assets/background.png')
+    // this.load.spritesheet('barista', 'assets/barista.png', )
 }
 
 function listener() {
@@ -32,20 +34,25 @@ function listener() {
 }
 
 function create() {
-    this.add.image(400, 300, 'sky')
-    // this.add.image(400, 200, 'belt')
-    // platforms = this.physics.add.staticGroup()
-    // platforms.create(400, 568, 'belt').setScale(2).refreshBody()
-    // platforms.create(400, 568, 'temp').setScale(2).refreshBody()
-    belt = this.physics.add.sprite(400, 580, 'belt')
+    this.add.image(400, 300, 'background')
+    belt = this.physics.add.sprite(400, 570, 'belt')
     belt.setScale(2.5)
-    belt.body.static = true
+    belt.setImmovable(true)
 
     trainer = this.physics.add.sprite(100, 450, 'trainer')
     trainer.setCollideWorldBounds(true)
     trainer.setInteractive()
     trainer.on('pointerdown', listener)
 
+    step1 = this.physics.add.sprite(12, 520, 'bomb')
+    step1.setInteractive()
+    stars = this.physics.add.group({
+        key: 'star',
+        repeat: 11,
+        setXY: { x: 12, y: 520, stepX: 70 }
+    })
+
+    
 
     this.anims.create({
         key: 'still',
@@ -90,6 +97,15 @@ function create() {
 
     cursors = this.input.keyboard.createCursorKeys()
 
+    this.physics.add.collider(trainer, belt)
+    this.physics.add.collider(
+        stars,
+        belt,
+        function (_stars, _belt) {
+            stars.setVelocityX(160)
+        }
+    )
+
 }
 
 function update() {
@@ -121,19 +137,17 @@ function update() {
         trainer.setVelocityX(0)
         trainer.setVelocityY(0)
 
-        // if (direction === 'west') {
-        //     trainer.anims.play('west')
-        // } else if (direction === 'east') {
-        //     trainer.anims.play('east')
-        // } else if (direction === 'north') {
-        //     trainer.anims.play('north')
-        // } else if (direction === 'south') {
-        //     trainer.anims.play('still')
-        // } else {
-        //     trainer.anims.play('still')
-        // }
-
-        trainer.anims.play('north', true)
+        if (direction === 'west') {
+            trainer.anims.play('west')
+        } else if (direction === 'east') {
+            trainer.anims.play('east')
+        } else if (direction === 'north') {
+            trainer.anims.play('north')
+        } else if (direction === 'south') {
+            trainer.anims.play('still')
+        } else {
+            trainer.anims.play('still')
+        }
         // platforms.anims.play('belt', true)
         belt.anims.play('belt', true)
     }
