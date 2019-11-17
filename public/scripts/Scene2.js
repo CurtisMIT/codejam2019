@@ -8,6 +8,7 @@ class Scene2 extends Phaser.Scene {
         this.background = this.add.image(0, 0, 'background')
         this.background.setOrigin(0, 0)
         
+        this.location = "center"
         // creating belt
         this.belt = this.physics.add.sprite(400, 570, 'belt')
         this.belt.setScale(2.5)
@@ -73,7 +74,7 @@ class Scene2 extends Phaser.Scene {
 
         this.physics.add.collider(this.person, this.trainer)
         this.physics.add.collider(this.person, this.iceTray, this.halt)
-        this.physics.add.collider(this.person, this.mainWork)
+        this.physics.add.collider(this.person, this.mainWork, this.halt)
         this.physics.add.collider(this.person, this.cups, this.halt)
 
         // animations
@@ -88,6 +89,26 @@ class Scene2 extends Phaser.Scene {
         this.anims.create({
             key: 'belt',
             frames: this.anims.generateFrameNumbers('belt', { start: 3, end: 0 }),
+            frameRate: 10,
+            repeat: -1
+        })
+
+        this.anims.create({
+            key: 'still',
+            frames: [ { key: 'barista', frame: 0 } ],
+            frameRate: 20
+        })
+
+        this.anims.create({
+            key: 'east',
+            frames: this.anims.generateFrameNumbers('barista', { start: 8, end: 11 }),
+            frameRate: 10,
+            repeat: -1
+        })
+
+        this.anims.create({
+            key: 'north',
+            frames: this.anims.generateFrameNumbers('barista', { start: 12, end: 15 } ),
             frameRate: 10,
             repeat: -1
         })
@@ -132,7 +153,29 @@ class Scene2 extends Phaser.Scene {
 
     goToIce = () => {
         console.log('ice')
-        this.physics.moveToObject(this.person, this.iceTray)
+        if (this.location === 'center') {
+            this.person.anims.play('east', true)
+            this.tweens.add({
+                targets: [this.person],
+                x: 700,
+                duration: 3000,
+                callbackScope: this,
+                onComplete: function() {
+                    this.person.anims.play('north', true)
+                    this.tweens.add({
+                        targets: [this.person],
+                        y: 150,
+                        duration: 3000,
+                        callbackScope: this,
+                        onComplete: function() {
+                            this.person.anims.play('still')
+                            console.log('going up')
+                        }
+                    })
+                }
+            })
+        }
+        // this.physics.moveToObject(this.person, this.iceTray)
     }
 
     goToCups = () => {
