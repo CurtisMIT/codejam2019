@@ -18,19 +18,27 @@ const game = new Phaser.Game(config)
 let trainer
 let direction
 let platforms
+let movement = false
 let cursors
 function preload() {
-    this.load.image('sky', 'assets/sky.png')
     this.load.spritesheet('trainer', 'assets/trainer.png', { frameWidth: 51, frameHeight: 54 })
     this.load.spritesheet('dude', 'assets/dude.png', { frameWidth: 32, frameHeight: 48 })
     this.load.image('star', 'assets/star.png')
     this.load.spritesheet('belt', 'assets/belt.png', { frameWidth: 383.75, frameHeight: 37})
     this.load.image('background', 'assets/background.png')
-    // this.load.spritesheet('barista', 'assets/barista.png', )
+    this.load.image('bomb', 'assets/bomb.png')
+    this.load.spritesheet('barista', 'assets/barista.png',  { frameWidth: 75, frameHeight: 86 })
 }
 
-function listener() {
-    console.log('clicked')
+function moveStep(step, speed) {
+    step.x += speed
+    if (step.x > config.width) {
+        this.resetStep(step)
+    }
+}
+
+function resetStep(step) {
+    step.x = 0
 }
 
 function create() {
@@ -42,15 +50,22 @@ function create() {
     trainer = this.physics.add.sprite(100, 450, 'trainer')
     trainer.setCollideWorldBounds(true)
     trainer.setInteractive()
-    trainer.on('pointerdown', listener)
+    // trainer.on('pointerdown', function() {
+    //     movement = true
+    // })
 
-    step1 = this.physics.add.sprite(12, 520, 'bomb')
-    step1.setInteractive()
-    stars = this.physics.add.group({
-        key: 'star',
-        repeat: 11,
-        setXY: { x: 12, y: 520, stepX: 70 }
-    })
+    barista = this.physics.add.sprite(300, 450, 'barista')
+    barista.setCollideWorldBounds(true)
+
+    this.step1 = this.add.image(12, 520, 'star')
+    this.step2 = this.add.image(82, 520, 'star')
+    this.step3 = this.add.image(152, 520, 'star')
+    this.step4 = this.add.image(222, 520, 'star')
+    // stars = this.physics.add.group({
+    //     key: 'star',
+    //     repeat: 11,
+    //     setXY: { x: 12, y: 520, stepX: 70 }
+    // })
 
     
 
@@ -98,57 +113,63 @@ function create() {
     cursors = this.input.keyboard.createCursorKeys()
 
     this.physics.add.collider(trainer, belt)
-    this.physics.add.collider(
-        stars,
-        belt,
-        function (_stars, _belt) {
-            stars.setVelocityX(160)
-        }
-    )
+    // this.physics.add.collider(
+    //     stars,
+    //     belt,
+    //     function (_stars, _belt) {
+    //         stars.setVelocityX(160)
+    //     }
+    // )
 
 }
 
 function update() {
-    if (cursors.left.isDown) {
-        trainer.setVelocityX(-160)
-        trainer.setVelocityY(0)
 
-        trainer.anims.play('west', true)
-        direction = 'west'
-    } else if (cursors.right.isDown) {
-        trainer.setVelocityX(160)
-        trainer.setVelocityY(0)
+    this.moveStep(this.step1, 160)
+    this.moveStep(this.step2, 160)
+    this.moveStep(this.step3, 160)
+    this.moveStep(this.step4, 160)
+
+    // if (cursors.left.isDown) {
+    //     trainer.setVelocityX(-160)
+    //     trainer.setVelocityY(0)
+
+    //     trainer.anims.play('west', true)
+    //     direction = 'west'
+    // } else if (cursors.right.isDown) {
+    //     trainer.setVelocityX(160)
+    //     trainer.setVelocityY(0)
         
-        trainer.anims.play('east', true)
-        direction = 'east'
-    } else if (cursors.up.isDown) {
-        trainer.setVelocityX(0)
-        trainer.setVelocityY(-160)
+    //     trainer.anims.play('east', true)
+    //     direction = 'east'
+    // } else if (cursors.up.isDown) {
+    //     trainer.setVelocityX(0)
+    //     trainer.setVelocityY(-160)
 
-        trainer.anims.play('north', true)
-        direction = 'north'
-    } else if (cursors.down.isDown) {
-        trainer.setVelocityX(0)
-        trainer.setVelocityY(160)
+    //     trainer.anims.play('north', true)
+    //     direction = 'north'
+    // } else if (cursors.down.isDown) {
+    //     trainer.setVelocityX(0)
+    //     trainer.setVelocityY(160)
 
-        trainer.anims.play('south', true)
-        direction = 'south'
-    } else {
-        trainer.setVelocityX(0)
-        trainer.setVelocityY(0)
+    //     trainer.anims.play('south', true)
+    //     direction = 'south'
+    // } else {
+    //     trainer.setVelocityX(0)
+    //     trainer.setVelocityY(0)
 
-        if (direction === 'west') {
-            trainer.anims.play('west')
-        } else if (direction === 'east') {
-            trainer.anims.play('east')
-        } else if (direction === 'north') {
-            trainer.anims.play('north')
-        } else if (direction === 'south') {
-            trainer.anims.play('still')
-        } else {
-            trainer.anims.play('still')
-        }
-        // platforms.anims.play('belt', true)
-        belt.anims.play('belt', true)
-    }
+    //     if (direction === 'west') {
+    //         trainer.anims.play('west')
+    //     } else if (direction === 'east') {
+    //         trainer.anims.play('east')
+    //     } else if (direction === 'north') {
+    //         trainer.anims.play('north')
+    //     } else if (direction === 'south') {
+    //         trainer.anims.play('still')
+    //     } else {
+    //         trainer.anims.play('still')
+    //     }
+    //     // platforms.anims.play('belt', true)
+    //     belt.anims.play('belt', true)
+    // }
 }
